@@ -1,5 +1,5 @@
 [project]
-name = "sudoku-lib"
+name = "sudoku-engine"
 version = "1.0.0"
 requires-python = ">=3.8"
 authors = [
@@ -16,6 +16,6 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/sepehr-rs/sudoku-lib"
-Issues = "https://github.com/sepehr-rs/sudoku-lib/issues"
-GitHub = "https://github.com/sepehr-rs/sudoku-lib/py-sudoku"
+Homepage = "https://github.com/sepehr-rs/sudoku-engine"
+Issues = "https://github.com/sepehr-rs/sudoku-engine/issues"
+GitHub = "https://github.com/sepehr-rs/sudoku-engine/py-sudoku"
