@@ -1,4 +1,4 @@
-# sudoku-engine
+# sudoku-lib
 
 A simple Python package that generates and solves m x n Sudoku puzzles. A modified version of [py-sudoku](https://github.com/jeffsieu/py-sudoku), Built by [jeffsieu](https://github.com/jeffsieu).
 This library is mainly the backend for [Sudoku](https://flathub.org/apps/io.github.sepehr_rs.Sudoku), but can be used as a standalone Sudoku library.
@@ -7,7 +7,7 @@ This library is mainly the backend for [Sudoku](https://flathub.org/apps/io.gith
 
 ```sh
 # Python 3
-pip3 install sudoku-engine
+pip3 install sudoku-lib
 ```
 
 ## Usage
