@@ -403,14 +403,14 @@ class Sudoku:
 
 
 class _Solver:
-    def __init__(
+    def __init__(   # noqa: C901
         self,
         board: Board,
         width: int,
         height: int,
         diagonal: bool,
         max_solutions: int = 1,
-    ) -> None:  # noqa: C901
+    ) -> None:
         self.board = board
         self.width = width
         self.height = height
