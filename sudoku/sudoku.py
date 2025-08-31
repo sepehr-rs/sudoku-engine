@@ -160,7 +160,7 @@ class Sudoku:
         solver.solve_count()
         return solver.solutions_found >= 2
 
-    def validate(self) -> bool:
+    def validate(self) -> bool:  # noqa: C901
         """
         Checks current board for
         rule violations (rows, cols, boxes, and diagonals if enabled).
@@ -410,7 +410,7 @@ class _Solver:
         height: int,
         diagonal: bool,
         max_solutions: int = 1,
-    ) -> None:
+    ) -> None:  # noqa: C901
         self.board = board
         self.width = width
         self.height = height
@@ -462,7 +462,7 @@ class _Solver:
     def box_index(self, r: int, c: int) -> int:
         return (r // self.height) * self.width + (c // self.width)
 
-    def neighbors(self, r: int, c: int) -> List[Pos]:
+    def neighbors(self, r: int, c: int) -> List[Pos]:  # noqa: C901
         """
         All cells sharing row, col, box and (optionally) the two diagonals.
         """
