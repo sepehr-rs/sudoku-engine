@@ -1,6 +1,9 @@
-import sys
+from .base_sudoku import BaseSudoku
+from .variations import ClassicSudoku, DiagonalSudoku
+from .exceptions import *
 
-if sys.version_info[0] < 3:
-    from sudoku import Sudoku
-else:
-    from sudoku.sudoku import Sudoku  # noqa: F401
+__all__ = [
+    "BaseSudoku",
+    "ClassicSudoku",
+    "DiagonalSudoku",
+]

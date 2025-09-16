@@ -1,3 +1,5 @@
+# base_sudoku.py
+
 from abc import ABC, abstractmethod
 from typing import List, Set, Tuple, Optional, Callable, Type
 import random
@@ -6,23 +8,25 @@ Cell = Optional[int]
 Board = List[List[Cell]]
 Pos = Tuple[int, int]
 
+
 class BaseSudoku(ABC):
     """
     Abstract base for all Sudoku variants.
     Handles board state + solving/validation hooks,
     while subclasses supply specific region/constraint logic.
     """
+
     def __init__(self, size: int, board: Optional[Board] = None) -> None:
         self.size = size
         self.board: Board = (
-            [ [None] * size for _ in range(size) ] if board is None else board
+            [[None] * size for _ in range(size)] if board is None else board
         )
 
     @abstractmethod
     def regions(self) -> List[Set[Pos]]:
         """Return sets of positions (each must contain 1..N)."""
         ...
-    
+
     def extra_constraints(self) -> List[Callable[[Board], bool]]:
         """
         Optional extra checks (e.g., diagonals, killer cages).
@@ -104,7 +108,8 @@ class Solver:
         all_vals = set(range(1, self.N + 1))
         self.cands: dict[Pos, set[int]] = {
             (r, c): all_vals - self._used_in_neighbors(r, c)
-            for r in range(self.N) for c in range(self.N)
+            for r in range(self.N)
+            for c in range(self.N)
             if self.board[r][c] is None
         }
 
@@ -121,8 +126,8 @@ class Solver:
             (r, c): set() for r in range(self.N) for c in range(self.N)
         }
         for region in self.puzzle.regions():
-            for (r1, c1) in region:
-                for (r2, c2) in region:
+            for r1, c1 in region:
+                for r2, c2 in region:
                     if (r1, c1) != (r2, c2):
                         neighbors[(r1, c1)].add((r2, c2))
         return neighbors
@@ -159,9 +164,7 @@ class Solver:
         self.board[r][c] = None
         for pos, val in removed:
             self.cands[pos].add(val)
-        self.cands[(r, c)] = (
-            set(range(1, self.N + 1)) - self._used_in_neighbors(r, c)
-        )
+        self.cands[(r, c)] = set(range(1, self.N + 1)) - self._used_in_neighbors(r, c)
 
     def _dfs(self):
         if self.solutions_found >= self.max_solutions:
