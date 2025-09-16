@@ -1,7 +1,7 @@
 # diagonal_sudoku.py
 
 from typing import List, Set
-from .base_sudoku import BaseSudoku, Pos, Board
+from .base_sudoku import Pos
 from .classic_sudoku import ClassicSudoku
 
 
