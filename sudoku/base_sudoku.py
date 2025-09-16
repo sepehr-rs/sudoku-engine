@@ -84,8 +84,7 @@ class BaseSudoku(ABC):
         return True
 
     def __str__(self) -> str:
-        return "\n".join(" ".join(str(v or ".") for v in row)
-                         for row in self.board)
+        return "\n".join(" ".join(str(v or ".") for v in row) for row in self.board)
 
 
 class Solver:
@@ -165,8 +164,7 @@ class Solver:
         self.board[r][c] = None
         for pos, val in removed:
             self.cands[pos].add(val)
-        self.cands[(r, c)] = set(range(1, self.N + 1)) - \
-            self._used_in_neighbors(r, c)
+        self.cands[(r, c)] = set(range(1, self.N + 1)) - self._used_in_neighbors(r, c)
 
     def _dfs(self):
         if self.solutions_found >= self.max_solutions:
@@ -175,8 +173,7 @@ class Solver:
         if pos is None:
             # candidate solution
             # run extra constraints before accepting
-            if all(check(self.board)
-                   for check in self.puzzle.extra_constraints()):
+            if all(check(self.board) for check in self.puzzle.extra_constraints()):
                 self.solutions_found += 1
                 if self.first_solution is None:
                     self.first_solution = [row[:] for row in self.board]
@@ -214,41 +211,54 @@ class PuzzleGenerator:
         ensure_unique: bool = True,
         seed: Optional[int] = None,
         seed_values: int = 0,
-    ) -> BaseSudoku:
+    ) -> BaseSudoku:  # noqa: C901
         """
         Create a puzzle of given size and difficulty.
 
-        difficulty: 0 < difficulty < 1  (fraction of cells to remove)
+        difficulty: 0 < difficulty < 1 (fraction of cells to remove)
         ensure_unique: enforce uniqueness of solution
         """
         assert 0 < difficulty < 1, "Difficulty must be between 0 and 1"
 
         full = sudoku_cls(size=size)
 
-        # Optionally prefill some cells
         if seed is not None:
             random.seed(seed)
 
-        for _ in range(seed_values):
-            r, c = random.randrange(size), random.randrange(size)
-            if full.board[r][c] is not None:
-                continue  # skip already filled
-            # pick a random value that doesn't break constraints
-            candidates = set(range(1, size + 1))
-            for rr, cc in [(r, j) for j in range(size)] + [(i, c) for i in range(size)]:  # noqa: E501
-                if full.board[rr][cc] in candidates:
-                    candidates.remove(full.board[rr][cc])
-            if candidates:
-                v = random.choice(list(candidates))
-                full.board[r][c] = v
+        PuzzleGenerator._prefill_cells(full, size, seed_values)
         solver = Solver(full)
         solved_board = solver.solve_one()
         if solved_board is None:
             raise ValueError("Could not generate a solved board")
 
         puzzle = sudoku_cls(size=size, board=solved_board)
+        PuzzleGenerator._remove_cells(puzzle, size, difficulty, ensure_unique, seed)
+        return puzzle
 
-        # 2. Remove cells
+    @staticmethod
+    def _prefill_cells(full: BaseSudoku, size: int, seed_values: int):
+        """Optionally prefill some cells before generating puzzle."""
+        for _ in range(seed_values):
+            r, c = random.randrange(size), random.randrange(size)
+            if full.board[r][c] is not None:
+                continue  # skip already filled
+            candidates = set(range(1, size + 1))
+            # remove values already in row or column
+            for rr, cc in [(r, j) for j in range(size)] + [(i, c) for i in range(size)]:
+                if full.board[rr][cc] in candidates:
+                    candidates.remove(full.board[rr][cc])
+            if candidates:
+                full.board[r][c] = random.choice(list(candidates))
+
+    @staticmethod
+    def _remove_cells(
+        puzzle: BaseSudoku,
+        size: int,
+        difficulty: float,
+        ensure_unique: bool,
+        seed: Optional[int] = None,
+    ):
+        """Remove cells from the solved puzzle to create the final puzzle."""
         total = size * size
         target_remove = int(difficulty * total)
 
@@ -264,19 +274,15 @@ class PuzzleGenerator:
             r, c = divmod(idx, size)
             if puzzle.board[r][c] is None:
                 continue
-
             saved = puzzle.board[r][c]
             puzzle.board[r][c] = None
 
             if ensure_unique:
                 solver = Solver(puzzle, max_solutions=2)
-                count = solver.solve_count()
-                if count != 1:
-                    # revert removal
+                if solver.solve_count() != 1:
+                    # revert removal if not unique
                     puzzle.board[r][c] = saved
                 else:
                     removed += 1
             else:
                 removed += 1
-
-        return puzzle
