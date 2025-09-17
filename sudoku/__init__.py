@@ -1,5 +1,5 @@
-from sudoku.base_sudoku import BaseSudoku
-from sudoku.variations import ClassicSudoku, DiagonalSudoku
+from .variations import ClassicSudoku, DiagonalSudoku
+from . import base_sudoku
 
 # from .exceptions import *
 
