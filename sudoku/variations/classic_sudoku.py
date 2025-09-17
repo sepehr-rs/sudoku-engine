@@ -1,7 +1,7 @@
 # classic_sudoku.py
 
 from typing import List, Set
-from .base_sudoku import BaseSudoku, Pos, Board
+from ..base_sudoku import BaseSudoku, Pos, Board
 
 
 class ClassicSudoku(BaseSudoku):
