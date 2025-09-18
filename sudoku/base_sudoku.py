@@ -180,9 +180,9 @@ class Solver:
             return
 
         r, c = pos
-        for v in sorted(self.cands[pos]):
+        for v in random.sample(sorted(self.cands[pos]), len(self.cands[pos])):
             removed = self.place(r, c, v)
-            if all(self.cands[p] for p in self.cands):  # no empty domains
+            if all(self.cands[p] for p in self.cands):
                 self._dfs()
                 if self.solutions_found >= self.max_solutions:
                     self.unplace(r, c, v, removed)
