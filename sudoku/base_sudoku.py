@@ -55,7 +55,8 @@ class BaseSudoku(ABC):
             if not check(self.board):
                 return False
 
-        return True
+        solver = Solver(self, max_solutions=1)
+        return solver.solve_one() is not None
 
     def solve(self) -> Optional["BaseSudoku"]:
         solver = Solver(self)
