@@ -13,7 +13,7 @@ pip3 install sudoku-engine
 ### Classic Sudoku
 
 ```python
-from sudoku.variations.classic_sudoku import ClassicSudoku
+from sudoku import ClassicSudoku
 
 puzzle = ClassicSudoku(size=9)
 print("Puzzle:")
@@ -27,7 +27,7 @@ print(solution)
 ### Diagonal Sudoku
 
 ```python
-from sudoku.variations.diagonal_sudoku import DiagonalSudoku
+from sudoku import DiagonalSudoku
 
 puzzle = DiagonalSudoku(size=9)
 solution = puzzle.solve()
@@ -37,7 +37,7 @@ solution = puzzle.solve()
 
 ```python
 from sudoku.base_sudoku import PuzzleGenerator
-from sudoku.variations.classic_sudoku import ClassicSudoku
+from sudoku import ClassicSudoku
 
 puzzle = PuzzleGenerator.make_puzzle(
     sudoku_cls=ClassicSudoku,
