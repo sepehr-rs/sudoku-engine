@@ -85,7 +85,11 @@ class BaseSudoku(ABC):
         return True
 
     def __str__(self) -> str:
-        return "\n".join(" ".join(str(v or ".") for v in row) for row in self.board)
+        rows = []
+        for row in self.board:
+            row_str = " ".join(str(v or ".") for v in row)
+            rows.append(row_str)
+        return "\n".join(rows)
 
 
 class Solver:
@@ -165,7 +169,10 @@ class Solver:
         self.board[r][c] = None
         for pos, val in removed:
             self.cands[pos].add(val)
-        self.cands[(r, c)] = set(range(1, self.N + 1)) - self._used_in_neighbors(r, c)
+        self.cands[(r, c)] = (
+            set(range(1, self.N + 1))
+            - self._used_in_neighbors(r, c)
+        )
 
     def _dfs(self):
         if self.solutions_found >= self.max_solutions:
@@ -174,7 +181,10 @@ class Solver:
         if pos is None:
             # candidate solution
             # run extra constraints before accepting
-            if all(check(self.board) for check in self.puzzle.extra_constraints()):
+            if all(
+                check(self.board)
+                for check in self.puzzle.extra_constraints()
+            ):
                 self.solutions_found += 1
                 if self.first_solution is None:
                     self.first_solution = [row[:] for row in self.board]
@@ -233,7 +243,13 @@ class PuzzleGenerator:
             raise ValueError("Could not generate a solved board")
 
         puzzle = sudoku_cls(size=size, board=solved_board)
-        PuzzleGenerator._remove_cells(puzzle, size, difficulty, ensure_unique, seed)
+        PuzzleGenerator._remove_cells(
+            puzzle,
+            size,
+            difficulty,
+            ensure_unique,
+            seed
+        )
         return puzzle
 
     @staticmethod
@@ -245,7 +261,10 @@ class PuzzleGenerator:
                 continue  # skip already filled
             candidates = set(range(1, size + 1))
             # remove values already in row or column
-            for rr, cc in [(r, j) for j in range(size)] + [(i, c) for i in range(size)]:
+            for rr, cc in (
+                [(r, j) for j in range(size)]
+                + [(i, c) for i in range(size)]
+            ):
                 if full.board[rr][cc] in candidates:
                     candidates.remove(full.board[rr][cc])
             if candidates:
