@@ -2,6 +2,7 @@
 
 from typing import List, Set
 from ..base_sudoku import BaseSudoku, Pos, Board
+import math
 
 
 class ClassicSudoku(BaseSudoku):
@@ -14,13 +15,26 @@ class ClassicSudoku(BaseSudoku):
         self,
         size: int = 9,
         board: Board = None,
-        box_height: int = 3,
-        box_width: int = 3,
+        box_height: int | None = None,
+        box_width: int | None = None,
     ):
         super().__init__(size=size, board=board)
+
+        if box_height is None or box_width is None:
+            root = int(math.isqrt(size))
+            if root * root == size:
+                box_height = root
+                box_width = root
+            else:
+                raise ValueError(
+                    f"Cannot infer box dimensions for size={size}. "
+                    "Provide box_height and box_width explicitly."
+                )
+
         assert (
             box_height * box_width == size
-        ), "Box dimensions must multiply to board size"
+        ), f"Box dimensions {box_height}×{box_width} must multiply to board size {size}"
+
         self.box_height = box_height
         self.box_width = box_width
 
