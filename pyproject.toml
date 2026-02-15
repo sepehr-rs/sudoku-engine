@@ -19,3 +19,6 @@ classifiers = [
 Homepage = "https://github.com/sepehr-rs/sudoku-engine"
 Issues = "https://github.com/sepehr-rs/sudoku-engine/issues"
 GitHub = "https://github.com/sepehr-rs/sudoku-engine/py-sudoku"
+
+[project.optional-dependencies]
+dev = ["pytest", "flake8"]
