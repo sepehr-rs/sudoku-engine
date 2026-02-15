@@ -1,3 +1,4 @@
+from .base_sudoku import BaseSudoku
 from .variations import ClassicSudoku, DiagonalSudoku
 
 # from .exceptions import *

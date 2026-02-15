@@ -1,6 +1,6 @@
 # classic_sudoku.py
 
-from typing import List, Set
+from typing import List, Set, Optional
 from ..base_sudoku import BaseSudoku, Pos, Board
 import math
 
@@ -14,9 +14,9 @@ class ClassicSudoku(BaseSudoku):
     def __init__(
         self,
         size: int = 9,
-        board: Board = None,
-        box_height: int | None = None,
-        box_width: int | None = None,
+        board: Optional[Board] = None,
+        box_height: Optional[int] = None,
+        box_width: Optional[int] = None,
     ):
         super().__init__(size=size, board=board)
 

@@ -1,13 +1,24 @@
 # base_sudoku.py
 
 from abc import ABC, abstractmethod
-from typing import List, Set, Tuple, Optional, Callable, Type
+from typing import (
+    List,
+    Set,
+    Tuple,
+    Optional,
+    Callable,
+    Type,
+    Iterable,
+    Dict,
+    Union,
+)
 import random
 import math
 
 Cell = Optional[int]
 Board = List[List[Cell]]
 Pos = Tuple[int, int]
+DifficultyInput = Union[int, float, str]
 
 
 class BaseSudoku(ABC):
@@ -73,7 +84,7 @@ class BaseSudoku(ABC):
     def board_copy(self) -> Board:
         return [row[:] for row in self.board]
 
-    def _check_unit(self, positions: List[Pos]) -> bool:
+    def _check_unit(self, positions: Iterable[Pos]) -> bool:
         """Helper: ensure no duplicate values in a given unit."""
         seen = set()
         for r, c in positions:
@@ -108,11 +119,11 @@ class Solver:
         self.board = puzzle.board_copy()
 
         # Precompute neighbors from regions
-        self.neighbors: dict[Pos, set[Pos]] = self._build_neighbors()
+        self.neighbors: Dict[Pos, Set[Pos]] = self._build_neighbors()
 
         # Candidate sets
         all_vals = set(range(1, self.N + 1))
-        self.cands: dict[Pos, set[int]] = {
+        self.cands: Dict[Pos, Set[int]] = {
             (r, c): all_vals - self._used_in_neighbors(r, c)
             for r in range(self.N)
             for c in range(self.N)
@@ -123,12 +134,12 @@ class Solver:
         self.solutions_found = 0
         self.first_solution: Optional[Board] = None
 
-    def _build_neighbors(self) -> dict[Pos, set[Pos]]:
+    def _build_neighbors(self) -> Dict[Pos, Set[Pos]]:
         """
         Precompute all neighbors of each cell from regions.
         Two cells are neighbors if they appear in the same region.
         """
-        neighbors: dict[Pos, set[Pos]] = {
+        neighbors: Dict[Pos, Set[Pos]] = {
             (r, c): set() for r in range(self.N) for c in range(self.N)
         }
         for region in self.puzzle.regions():
@@ -138,7 +149,7 @@ class Solver:
                         neighbors[(r1, c1)].add((r2, c2))
         return neighbors
 
-    def _used_in_neighbors(self, r: int, c: int) -> set[int]:
+    def _used_in_neighbors(self, r: int, c: int) -> Set[int]:
         """Values already present among a cell’s neighbors."""
         vals = set()
         for rr, cc in self.neighbors[(r, c)]:
@@ -156,7 +167,7 @@ class Solver:
     def place(self, r: int, c: int, v: int) -> List[Tuple[Pos, int]]:
         """Place value and update candidate sets."""
         self.board[r][c] = v
-        removed: list[tuple[Pos, int]] = []
+        removed: List[Tuple[Pos, int]] = []
         for nb in self.neighbors[(r, c)]:
             if nb in self.cands and v in self.cands[nb]:
                 self.cands[nb].remove(v)
@@ -219,7 +230,7 @@ class PuzzleGenerator:
     def make_puzzle(
         sudoku_cls: Type[BaseSudoku],
         size: int,
-        difficulty: float,
+        difficulty: DifficultyInput,
         ensure_unique: bool = True,
         seed: Optional[int] = None,
         seed_values: int = 0,
@@ -305,8 +316,9 @@ class PuzzleGenerator:
                 [(r, j) for j in range(size)]
                 + [(i, c) for i in range(size)]
             ):
-                if full.board[rr][cc] in candidates:
-                    candidates.remove(full.board[rr][cc])
+                cell = full.board[rr][cc]
+                if cell is not None and cell in candidates:
+                    candidates.remove(cell)
             if candidates:
                 full.board[r][c] = random.choice(list(candidates))
 

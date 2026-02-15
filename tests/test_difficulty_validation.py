@@ -1,5 +1,7 @@
 """Test suite for difficulty validation in PuzzleGenerator.make_puzzle"""
 
+from typing import Any, cast
+
 import pytest
 
 from sudoku.base_sudoku import PuzzleGenerator
@@ -51,7 +53,7 @@ class TestDifficultyInvalidType:
             PuzzleGenerator.make_puzzle(
                 sudoku_cls=ClassicSudoku,
                 size=4,
-                difficulty=None,
+                difficulty=cast(Any, None),
                 ensure_unique=False,
                 seed=1,
             )
