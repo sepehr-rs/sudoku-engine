@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Set, Tuple, Optional, Callable, Type
 import random
+import math
 
 Cell = Optional[int]
 Board = List[List[Cell]]
@@ -227,9 +228,48 @@ class PuzzleGenerator:
         Create a puzzle of given size and difficulty.
 
         difficulty: 0 < difficulty < 1 (fraction of cells to remove)
+
+        Validation policy:
+        - Accepted: int, float, numeric strings (e.g. "0.5")
+        - Rejected: bool, non-numeric strings, None
+        - Non-finite floats (NaN, inf, -inf) are rejected
+        - Range: 0 < difficulty < 1 (exclusive)
+
+        Raises:
+            TypeError: if input is not numeric or not coercible to float
+            ValueError: if numeric but invalid (out of range or non-finite)
+
         ensure_unique: enforce uniqueness of solution
         """
-        assert 0 < difficulty < 1, "Difficulty must be between 0 and 1"
+        # Check if bool (since bool is subclass of int)
+        if isinstance(difficulty, bool):
+            raise TypeError(
+                f"Difficulty cannot be bool. Received {difficulty!r} "
+                f"(type: {type(difficulty).__name__})"
+            )
+
+        # Try to coerce to float
+        try:
+            difficulty = float(difficulty)
+        except (TypeError, ValueError) as e:
+            raise TypeError(
+                f"Difficulty must be numeric. Received {difficulty!r} "
+                f"(type: {type(difficulty).__name__})"
+            ) from e
+
+        # Check if finite (not NaN, inf, or -inf)
+        if not math.isfinite(difficulty):
+            raise ValueError(
+                f"Difficulty must be finite. Received {difficulty!r} "
+                f"(type: {type(difficulty).__name__})"
+            )
+
+        # Check range (exclusive)
+        if not (0 < difficulty < 1):
+            raise ValueError(
+                f"Difficulty must be 0 < difficulty < 1. "
+                f"Received {difficulty!r} (type: {type(difficulty).__name__})"
+            )
 
         full = sudoku_cls(size=size)
 
