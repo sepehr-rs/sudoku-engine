@@ -4,4 +4,5 @@ from .diagonal_sudoku import DiagonalSudoku
 __all__ = [
     "ClassicSudoku",
     "DiagonalSudoku",
+    "HyperSudoku"
 ]
