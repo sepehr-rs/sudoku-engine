@@ -19,7 +19,7 @@ class DiagonalSudoku(ClassicSudoku):
         # Main diagonal (top-left to bottom-right)
         diag1 = {(i, i) for i in range(N)}
         regions.append(diag1)
-
+        breakpoint()
         # Anti-diagonal (top-right to bottom-left)
         diag2 = {(i, N - 1 - i) for i in range(N)}
         regions.append(diag2)
