@@ -1,4 +1,4 @@
-# diagonal_sudoku.py
+# hyper_sudoku.py
 
 from typing import List, Set
 from sudoku.base_sudoku import Pos
