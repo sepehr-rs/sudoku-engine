@@ -7,8 +7,8 @@ from .classic_sudoku import ClassicSudoku
 
 class DiagonalSudoku(ClassicSudoku):
     """
-    Standard NxN Sudoku with sub-boxes of size box_height x box_width.
-    Only rows, columns, and boxes are enforced.
+    Diagonal NxN Sudoku with sub-boxes of size box_height x box_width.
+    Only rows, columns, boxes, and diagonals are enforced.
     """
 
     def regions(self) -> List[Set[Pos]]:

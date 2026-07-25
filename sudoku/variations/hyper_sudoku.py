@@ -8,7 +8,7 @@ from .classic_sudoku import ClassicSudoku
 class HyperSudoku(ClassicSudoku):
     """
     Standard NxN Sudoku with sub-boxes of size box_height x box_width.
-    Only rows, columns, and boxes are enforced.
+    Only rows, columns, boxes, and hyper sudoku boxes are enforced.
     """
 
     def regions(self) -> List[Set[Pos]]:
