@@ -18,4 +18,4 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/sepehr-rs/sudoku-engine"
 Issues = "https://github.com/sepehr-rs/sudoku-engine/issues"
-GitHub = "https://github.com/sepehr-rs/sudoku-engine/py-sudoku"
+GitHub = "https://github.com/sepehr-rs/sudoku-engine"
