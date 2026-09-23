@@ -102,20 +102,58 @@ solution = puzzle.solve()
 print(solution)
 ```
 
-```
-1 2 3 4
-3 4 1 2
-2 1 4 3
-4 3 2 1
-```
+### Hyper Sudoku
+
+Hyper Sudoku adds four extra 3x3 "window" regions that must also contain every digit exactly once, in addition to the standard rows, columns, and boxes.
 
 ```python
-# 16x16 with 4x4 boxes (auto-inferred)
-puzzle = ClassicSudoku(size=16)
+from sudoku import HyperSudoku
+
+puzzle = HyperSudoku(size=9)
 solution = puzzle.solve()
 ```
 
-Non-square sizes can be constructed with explicit box dimensions, but note that `solve()` currently does not preserve custom box dimensions when reconstructing the result. Perfect-square sizes are recommended for full functionality.
+### Jigsaw Sudoku
+
+Jigsaw Sudoku replaces the standard 3x3 boxes with irregularly-shaped connected regions, each still containing every digit exactly once. Regions must be supplied when constructing the puzzle:
+
+```python
+from sudoku import JigsawSudoku, JigsawRegionGenerator
+
+jigsaw_regions = JigsawRegionGenerator(size=9).generate()
+puzzle = JigsawSudoku(size=9, jigsaw_regions=jigsaw_regions)
+solution = puzzle.solve()
+```
+
+### Killer Sudoku
+
+Killer Sudoku adds cages: connected groups of cells that must contain no repeated digits and sum to a given target.
+
+```python
+from sudoku import generate_killer_sudoku
+
+puzzle = generate_killer_sudoku(size=9)
+print("Puzzle:")
+print(puzzle)
+for cage in puzzle.cages:
+    print(cage.cells, "->", cage.target)
+
+solution = puzzle.solve()
+print("Solved:")
+print(solution)
+```
+
+You can also build a `KillerSudoku` directly from your own cages:
+
+```python
+from sudoku import KillerSudoku, Cage
+
+cages = [
+    Cage(cells=frozenset({(0, 0), (0, 1)}), target=10),
+    # ... cages must cover every cell on the board exactly once
+]
+puzzle = KillerSudoku(size=9, cages=cages)
+```
 
 ### Generating Puzzles
 
@@ -191,131 +229,26 @@ puzzle = PuzzleGenerator.make_puzzle(
 print(puzzle)
 ```
 
-### Validating a Board
-
-Check whether a board satisfies all constraints and is solvable:
+Jigsaw regions and Killer Sudoku cages have their own dedicated generators, since both need to partition the board into connected regions rather than simply removing digits from a solved grid:
 
 ```python
-from sudoku import ClassicSudoku
+from sudoku import JigsawRegionGenerator, CageGenerator
 
-board = [
-    [5, 3, 4, 6, 7, 8, 9, 1, 2],
-    [6, 7, 2, 1, 9, 5, 3, 4, 8],
-    [1, 9, 8, 3, 4, 2, 5, 6, 7],
-    [8, 5, 9, 7, 6, 1, 4, 2, 3],
-    [4, 2, 6, 8, 5, 3, 7, 9, 1],
-    [7, 1, 3, 9, 2, 4, 8, 5, 6],
-    [9, 6, 1, 5, 3, 7, 2, 8, 4],
-    [2, 8, 7, 4, 1, 9, 6, 3, 5],
-    [3, 4, 5, 2, 8, 6, 1, 7, 9],
-]
-
-puzzle = ClassicSudoku(size=9, board=board)
-print(puzzle.validate())  # True
+jigsaw_regions = JigsawRegionGenerator(size=9).generate()
 ```
 
-### Checking for Multiple Solutions
+For Killer Sudoku, `generate_killer_sudoku` (shown above) wraps this end-to-end — solving a grid, partitioning it into cages, and returning a ready-to-solve `KillerSudoku` puzzle. If you want the cages for a board you've already solved yourself, use `CageGenerator` directly:
 
 ```python
-from sudoku import ClassicSudoku
+from sudoku.base_sudoku import Solver
+from sudoku import ClassicSudoku, CageGenerator
 
-board = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9],
-]
-
-puzzle = ClassicSudoku(size=9, board=board)
-print(puzzle.has_multiple_solutions())  # False
+solved = Solver(ClassicSudoku(size=9)).solve_one()
+cages = CageGenerator(size=9).generate(solved)
 ```
 
-### String Representation
+If you wish to raise an `UnsolvableSudoku` error when the board is invalid pass a `raising=True` parameter:
 
-Boards print as space-separated values with `.` for empty cells:
-
-```python
-from sudoku import ClassicSudoku
-
-puzzle = ClassicSudoku(size=4, board=[
-    [0, 2, 0, 0],
-    [0, 0, 0, 3],
-    [2, 0, 0, 0],
-    [0, 0, 1, 0],
-])
-print(puzzle)
+```py
+puzzle.solve(raising=True)
 ```
-
-```
-. 2 . .
-. . . 3
-2 . . .
-. . 1 .
-```
-
-## API Reference
-
-### Types
-
-Defined in `sudoku.base_sudoku`:
-
-```python
-Cell = Optional[int]        # None = empty, or int 1..N
-Board = List[List[Cell]]    # 2D grid: board[row][col]
-Pos = Tuple[int, int]       # (row, column) coordinate
-```
-
-### `BaseSudoku` (abstract)
-
-Base class for all Sudoku variants.
-
-| Method | Returns | Description |
-|---|---|---|
-| `__init__(size, board=None)` | | Create empty board or load from a `Board` |
-| `regions()` | `List[Set[Pos]]` | **Abstract.** Return constraint regions (sets of positions that must contain unique values) |
-| `extra_constraints()` | `List[Callable[[Board], bool]]` | Optional hook for additional boolean constraints. Default: `[]` |
-| `validate()` | `bool` | Check board satisfies all constraints and is solvable |
-| `solve()` | `BaseSudoku \| None` | Return a new instance with the solved board, or `None` if unsolvable |
-| `has_multiple_solutions()` | `bool` | `True` if more than one solution exists |
-| `board_copy()` | `Board` | Deep copy of the board |
-
-### `ClassicSudoku(BaseSudoku)`
-
-Standard Sudoku with rows, columns, and sub-boxes.
-
-| Method | Returns | Description |
-|---|---|---|
-| `__init__(size=9, board=None, box_height=None, box_width=None)` | | `box_height`/`box_width` auto-inferred for perfect-square sizes |
-| `regions()` | `List[Set[Pos]]` | Rows + columns + sub-boxes |
-
-### `DiagonalSudoku(ClassicSudoku)`
-
-Extends `ClassicSudoku` with main-diagonal and anti-diagonal constraints.
-
-| Method | Returns | Description |
-|---|---|---|
-| `regions()` | `List[Set[Pos]]` | Rows + columns + sub-boxes + both diagonals |
-
-### `PuzzleGenerator`
-
-| Method | Returns | Description |
-|---|---|---|
-| `make_puzzle(sudoku_cls, size, difficulty, ensure_unique=True, seed=None, seed_values=0)` | `BaseSudoku` | Generate a puzzle of given size and difficulty |
-
-## How It Works
-
-The solver uses **recursive depth-first search** with two optimizations:
-
-1. **MRV heuristic** (Minimum Remaining Values) -- always picks the empty cell with the fewest legal candidates, pruning the search tree early.
-2. **Forward checking** -- maintains candidate sets per cell and prunes values from neighbors on each placement. Backtracks immediately if any cell has zero candidates.
-
-Constraint regions (rows, columns, boxes, diagonals, etc.) are flattened into a neighbor graph at initialization. Two cells are neighbors if they appear in the same region. This makes the solver generic: any `BaseSudoku` subclass works without modifying solver code.
-
-## License
-
-MIT -- see [LICENSE](LICENSE).

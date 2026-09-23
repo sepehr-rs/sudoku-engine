@@ -31,9 +31,7 @@ class ClassicSudoku(BaseSudoku):
                     "Provide box_height and box_width explicitly."
                 )
 
-        assert (
-            box_height * box_width == size
-        ), (
+        assert box_height * box_width == size, (
             f"Box dimensions {box_height}×{box_width} "
             f"must multiply to board size {size}"
         )
